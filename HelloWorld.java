@@ -1,20 +1,28 @@
 import java.util.*;
 import java.io.Console;
 import java.io.IOException;
+import java.time.LocalDate;
 class expenseTracker{
   	static String myInput() {
    	return System.console().readLine("Would you like to add, remove, summarize, update, or view expenses? You can also exit.");
   }
 	void main(){
-		Map<String, Double> expenses = new HashMap<>(); //You have to use the object versions of types instead of primitives, so Double instead of double for "generics."
-								//https://roadmap.sh/projects/expense-tracker
+//		Map<String, Double> expenses = new HashMap<>(); //You have to use the object versions of types instead of primitives, so Double instead of double for "generics."
+ArrayList<Expense> expenses = new ArrayList<>();
+
+		//https://roadmap.sh/projects/expense-tracker
 		//for (Map.Entry<String, Double> entry : expenses.entrySet()
 		System.out.println("Welcome to the expense tracker.");
 		String input = myInput();
 		while (!input.equals("exit") && !input.equals("Exit")){
 			switch(input){
 			case "add", "Add":
-				expenses.put(System.console().readLine("Type the name of your expense."), Double.parseDouble(System.console().readLine("Type the value of your expense.")));
+				Expense temporaryExpense = new Expense();
+				temporaryExpense.description = System.console().readLine("Type the name of your expense.");
+				temporaryExpense.amount = Double.parseDouble(System.console().readLine("Type the value of your expense."));
+				temporaryExpense.ID = expenses.size() + 1;
+				expenses.add(temporaryExpense);
+				System.out.println("The " + expenses.get(expenses.size() - 1).description + " expense has been added with a cost of $" + expenses.get(expenses.size() - 1).amount + " on " + expenses.get(expenses.size()-1).date + ". Its ID is " + expenses.get(expenses.size()-1).ID);
 				input = myInput();
 				break;
 			case "remove", "Remove":
@@ -24,30 +32,32 @@ class expenseTracker{
 			case "view", "View": 
 				//System.out.println(expenses);\
 				System.out.println("# ID  Date       Description  Amount");
-				int i = 1;
-				for (String e : expenses.keySet()){
-					System.out.println(" #" + i + " fake-date. " + e + " $" + expenses.get(e));	//you can access the value of a key in a hashmap by using 
+				//int i = 1;
+			//	for (String e : expenses.keySet()){
+			//		System.out.println(" #" + i + " fake-date. " + e + " $" + expenses.get(e));	//you can access the value of a key in a hashmap by using 
 															//hashMap.get("key");	
-				};
-				System.out.println(expenses.entrySet());
+				//};
+			//	System.out.println(expenses.entrySet());
 				input = myInput();
 				break;
 			case "summarize", "Summarize", "summary", "Summary":
 				double totalExpense = 0;
-				for(double expenseValue : expenses.values()){
-				totalExpense += expenseValue;
-				};
+				for (int i = 0; i < expenses.size(); i++){
+				totalExpense += expenses.get(i).amount;	
+				}	
 				System.out.println("Total expenses: $" + totalExpense);
 				input = myInput();
 				break;
 			case "update", "Update":
 				System.out.println(expenses);
-				String keyToUpdate = System.console().readLine("What would you like to update?");
-				String newValue = System.console().readLine("This expense currently is $" + expenses.get(keyToUpdate) + ". What would you like to change it to?");
+				String keyToUpdate = System.console().readLine("Type the ID of the expense you would like to update.");
+				int temporaryIntIndex = Integer.parseInt(keyToUpdate) - 1; 
+				String newValue = System.console().readLine("This expense currently is $" + expenses.get(temporaryIntIndex).amount + ". What would you like to change it to?");
 				double newValueDouble = Double.parseDouble(newValue);
-			      	expenses.put(keyToUpdate, newValueDouble);	
-				//the hashmap .get(key) method gives the value of a specified key.
-				//a useful site: https://www.geeksforgeeks.org/java/java-util-hashmap-in-java-with-examples/		
+				expenses.get(temporaryIntIndex).amount = newValueDouble;
+				//the ArrayList .get() method gives the value of a specified key.
+				//a useful site: https://www.geeksforgeeks.org/java/java-util-hashmap-in-java-with-examples/	
+				//and another: https://www.w3schools.com/java/java_arraylist.asp	
 				input = myInput();
 				break;
 			//in java, the equivalent to an "else" case is "default" for switch cases:
@@ -67,14 +77,9 @@ class expenseTracker{
 //	>Store the data (txt, json, csv, any works.)
 //	>Add error handling for things like negative amounts, non-existent expense IDs, etc. 
 //	>Use functions to modularize the code and make it easier to test and maintain
-//	>Track the date that an expense is created and have that show when asking for a list of the different expenses.
 //	>Make the view expenses actually fit the given requirements.
-//Vim notes below:
-//dw - delete (cut) the characters of the word from the cursor position to the start of the next word
-//diw - delete (cut) word under the cursor
-//daw - delete (cut) word under the cursor and the space after or before it 
-Expense e1 = new Expense();
-System.out.println(e1.date);
+//Expense e1 = new Expense();
+//System.out.println(e1.date);
 	}
 }
 class TablePrint{
@@ -86,17 +91,15 @@ class ErrorHandling{
 
 }
 class Expense{
-int ID;
-String expense;
-double cost;
+int ID; //Possibly we can have the ID just be the variable's position in the arraylist (perhaps + 1)
+String description;
+double amount;
 String date;
 
 Expense(){//initializer
-//Using the calendar class to find current date and time
-Calendar c = Calendar.getInstance();
-date = c.get(Calendar.YEAR) + "-" + c.get(Calendar.MONTH) + "-" + c.get(Calendar.DAY_OF_MONTH);
-//This is great progress. However, instructions want date to be in format 2024-08-06. Mine are in 2024-8-6, so dates won't always have the same number of digits. 
-//I am not sure how to fix this.
+LocalDate localDate = LocalDate.now();
+date = localDate.toString();
+//Date has been set to the correct format using a simpler solution with localdate!!!
 //If I am to replace my usage of hashmaps with this class, then I must be able to use generics in so that I can create different instances of this class
 //in loops.
 //How can I make it so that these are searchable; i.e. I can search for different instances of my class and find specific things from them?? Or is that not necessary?
