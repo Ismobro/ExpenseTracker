@@ -1,43 +1,37 @@
 import java.util.*;
 import java.io.Console;
+import java.io.FileWriter;
+import java.io.File;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.time.LocalDate;
 class expenseTracker{
   	static String myInput() {
-   	return System.console().readLine("Would you like to add, remove, summarize, update, or view expenses? You can also exit.");
+   	return System.console().readLine("Would you like to add, remove, summarize, update, or view expenses? You can also exit or save if you have added some expenses. ");
   }
 	void main(){
-//		Map<String, Double> expenses = new HashMap<>(); //You have to use the object versions of types instead of primitives, so Double instead of double for "generics."
 ArrayList<Expense> expenses = new ArrayList<>();
 
 		//https://roadmap.sh/projects/expense-tracker
-		//for (Map.Entry<String, Double> entry : expenses.entrySet()
 		System.out.println("Welcome to the expense tracker.");
 		String input = myInput();
 		while (!input.equals("exit") && !input.equals("Exit")){
 			switch(input){
 			case "add", "Add":
 				Expense temporaryExpense = new Expense();
-				temporaryExpense.description = System.console().readLine("Type the name of your expense.");
-				temporaryExpense.amount = Double.parseDouble(System.console().readLine("Type the value of your expense."));
+				temporaryExpense.description = System.console().readLine("Type the name of your expense. ");
+				temporaryExpense.amount = Double.parseDouble(System.console().readLine("Type the value of your expense. "));
 				temporaryExpense.ID = expenses.size() + 1;
 				expenses.add(temporaryExpense);
 				System.out.println("The " + expenses.get(expenses.size() - 1).description + " expense has been added with a cost of $" + expenses.get(expenses.size() - 1).amount + " on " + expenses.get(expenses.size()-1).date + ". Its ID is " + expenses.get(expenses.size()-1).ID);
 				input = myInput();
 				break;
 			case "remove", "Remove":
-				expenses.remove(System.console().readLine("Type the name of what you would like to remove."));
+				expenses.remove(System.console().readLine("Type the name of what you would like to remove. "));
 				input = myInput();
 				break;
 			case "view", "View": 
-				//System.out.println(expenses);\
-				System.out.println("# ID  Date       Description  Amount");
-				//int i = 1;
-			//	for (String e : expenses.keySet()){
-			//		System.out.println(" #" + i + " fake-date. " + e + " $" + expenses.get(e));	//you can access the value of a key in a hashmap by using 
-															//hashMap.get("key");	
-				//};
-			//	System.out.println(expenses.entrySet());
+				TablePrint.printExpenses(expenses);
 				input = myInput();
 				break;
 			case "summarize", "Summarize", "summary", "Summary":
@@ -50,9 +44,9 @@ ArrayList<Expense> expenses = new ArrayList<>();
 				break;
 			case "update", "Update":
 				System.out.println(expenses);
-				String keyToUpdate = System.console().readLine("Type the ID of the expense you would like to update.");
+				String keyToUpdate = System.console().readLine("Type the ID of the expense you would like to update. ");
 				int temporaryIntIndex = Integer.parseInt(keyToUpdate) - 1; 
-				String newValue = System.console().readLine("This expense currently is $" + expenses.get(temporaryIntIndex).amount + ". What would you like to change it to?");
+				String newValue = System.console().readLine("This expense currently is $" + expenses.get(temporaryIntIndex).amount + ". What would you like to change it to? ");
 				double newValueDouble = Double.parseDouble(newValue);
 				expenses.get(temporaryIntIndex).amount = newValueDouble;
 				//the ArrayList .get() method gives the value of a specified key.
@@ -61,48 +55,76 @@ ArrayList<Expense> expenses = new ArrayList<>();
 				input = myInput();
 				break;
 			//in java, the equivalent to an "else" case is "default" for switch cases:
+			case "save", "Save":
+				String informationToWrite = "";
+				for (Expense e : expenses){
+				informationToWrite += e.ID + "," + e.date + "," + e.description + "," + e.amount + "/n";
+				Files.writeToFile(informationToWrite);
+				}
+				input = myInput();
+				break;
 			default: 
 				System.out.println("Please type a valid option.");
 				input = myInput();
 				break;
 			}
 		};
-//UPDATE: it now does exit properly. the error was that I had used the || operator instead of the && operator, so that 
-//the application would not quit if the input was exit, as it needed to be exit and Exit at the same time
-//Now, using the && operator, if either exit or Exit is typed, the program (the while loop) will exit. This is because
-//the input must not be equal to exit and must not be equal to Exit to run the loop. 
-//There is more to be done. Check out the link to the poject on roadmap.sh to figure out what more you need to do.
 //Biggest todos:
 //	>Make it useable in the command line by using some module to parse command arguments
 //	>Store the data (txt, json, csv, any works.)
 //	>Add error handling for things like negative amounts, non-existent expense IDs, etc. 
 //	>Use functions to modularize the code and make it easier to test and maintain
-//	>Make the view expenses actually fit the given requirements.
-//Expense e1 = new Expense();
-//System.out.println(e1.date);
 	}
 }
-class TablePrint{
+class TablePrint {
+    static void printExpenses(ArrayList<Expense> expenses) {
+        System.out.printf("%-5s %-12s %-20s %-10s%n", "ID", "Date", "Description", "Amount");
+        System.out.println("--------------------------------------------------");
 
-
-
+        for (Expense e : expenses) {
+            System.out.printf("%-5d %-12s %-20s $%-10.2f%n",
+                    e.ID,
+                    e.date,
+                    e.description,
+                    e.amount);
+        }
+    }
 }
-class ErrorHandling{
 
-}
 class Expense{
-int ID; //Possibly we can have the ID just be the variable's position in the arraylist (perhaps + 1)
+int ID; 
 String description;
 double amount;
 String date;
 
-Expense(){//initializer
+Expense(){
 LocalDate localDate = LocalDate.now();
 date = localDate.toString();
 //Date has been set to the correct format using a simpler solution with localdate!!!
-//If I am to replace my usage of hashmaps with this class, then I must be able to use generics in so that I can create different instances of this class
-//in loops.
-//How can I make it so that these are searchable; i.e. I can search for different instances of my class and find specific things from them?? Or is that not necessary?
+	}
+
 }
 
+class Files{
+static void writeToFile(String S){
+   try {
+      FileWriter myWriter = new FileWriter("expenses.txt");
+      myWriter.write(S);
+      myWriter.close();  // must close manually
+      System.out.println("Successfully wrote to the file.");
+    } catch (IOException e) {
+      System.out.println("An error occurred.");
+      e.printStackTrace();
+    }
+}
+static void readFromFile(String S){
+try{File file = new File("expenses.txt");
+Scanner scan = new Scanner(file);
+//Add logic for reading each line separately and creating and adding to the expenses ArrayList. 
+//See if there is something similar to the python .strip function in java. If not, find your own solution. 
+//each line here would be scan.nextLine();, so you can use that in the logic. maybe also use while scan.hasNextLine();
+}catch(FileNotFoundException f){
+	//Idea is to do nothing if there is no file yet created.
+}
+	}
 }
