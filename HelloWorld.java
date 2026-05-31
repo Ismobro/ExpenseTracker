@@ -11,7 +11,7 @@ class expenseTracker{
   }
 	void main(){
 ArrayList<Expense> expenses = new ArrayList<>();
-
+expenses = Files.readFromFile();
 		//https://roadmap.sh/projects/expense-tracker
 		System.out.println("Welcome to the expense tracker.");
 		String input = myInput();
@@ -27,7 +27,16 @@ ArrayList<Expense> expenses = new ArrayList<>();
 				input = myInput();
 				break;
 			case "remove", "Remove":
-				expenses.remove(System.console().readLine("Type the name of what you would like to remove. "));
+				int x = Integer.parseInt(System.console().readLine("Type the ID of what you would like to remove. "));
+				ArrayList<Expense> tempArrayList = new ArrayList<>();
+				for (Expense expense : expenses){
+					if (expense.ID == x){
+					tempArrayList.add(expense);
+					}
+				}
+				for (Expense e : tempArrayList){
+				expenses.remove(e);	
+				}
 				input = myInput();
 				break;
 			case "view", "View": 
@@ -58,7 +67,9 @@ ArrayList<Expense> expenses = new ArrayList<>();
 			case "save", "Save":
 				String informationToWrite = "";
 				for (Expense e : expenses){
-				informationToWrite += e.ID + "," + e.date + "," + e.description + "," + e.amount + "/n";
+				informationToWrite += e.ID + "," + e.date + "," + e.description + "," + e.amount + "\n";
+				File oldFile = new File("expenses.txt");
+				oldFile.delete();
 				Files.writeToFile(informationToWrite);
 				}
 				input = myInput();
@@ -117,14 +128,25 @@ static void writeToFile(String S){
       e.printStackTrace();
     }
 }
-static void readFromFile(String S){
+static ArrayList<Expense> readFromFile(){
 try{File file = new File("expenses.txt");
 Scanner scan = new Scanner(file);
-//Add logic for reading each line separately and creating and adding to the expenses ArrayList. 
-//See if there is something similar to the python .strip function in java. If not, find your own solution. 
-//each line here would be scan.nextLine();, so you can use that in the logic. maybe also use while scan.hasNextLine();
+ArrayList<Expense> tempExpenses = new ArrayList<>();
+while (scan.hasNextLine()){
+String expenseLine = scan.nextLine();
+Expense expense1 = new Expense();
+String[] expenseAttributes = expenseLine.split(",");
+//set a variable for every new split string
+expense1.ID = Integer.parseInt(expenseAttributes[0]);
+expense1.description = expenseAttributes[2];
+expense1.date = expenseAttributes[1];
+expense1.amount = Double.parseDouble(expenseAttributes[3]);
+tempExpenses.add(expense1);
+}
+return tempExpenses;
 }catch(FileNotFoundException f){
-	//Idea is to do nothing if there is no file yet created.
+ArrayList<Expense> tempExpenses = new ArrayList<>();
+return tempExpenses;
 }
 	}
 }
