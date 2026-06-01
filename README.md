@@ -1,6 +1,6 @@
 # ExpenseTracker
 
-A simple java tool to track expenses. It is a solution to the roadmap.sh project of the same name, found here: https://roadmap.sh/projects/expense-tracker. 
+A simple java tool to track expenses. It is a WIP solution to the roadmap.sh project of the same name, found here: https://roadmap.sh/projects/expense-tracker. 
 
 ## Description & Functionality
 
